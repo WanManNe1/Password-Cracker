@@ -95,23 +95,23 @@ def main() -> tuple[str, str] | None:
 
 	# Bake in the `target_hash` argument into `check_password` function using `functools.partial`
 	# (since `check_password` takes two args but `executor.map` only sends one)
-	check_with_target_hash = partial(check_password, target_hash=target_hash)
-
-	password_found = None
-	start_time = time.time()
+	password_check_with_target_hash = partial(check_password, target_hash=target_hash)
 
 	# Determine number of workers to use
 	num_workers = multiprocessing.cpu_count()
+	
+	password_found = None
+	start_time = time.time()
 
 	# Use `ProcessPoolExecutor` to manage a pool of worker processes
 	with ProcessPoolExecutor(max_workers=num_workers) as executor:
-		# `executor.map` applies the partial function `check_with_target_hash` to
+		# `executor.map` applies the partial function `password_check_with_target_hash` to
 		# every item in `guesses_generator` in parallel
 
 		# `chunksize` is a performance tuning to send multiple guesses to a worker at once
 		# reducing inter-process communication overhead 
 
-		results = executor.map(check_with_target_hash, guesses_generator, chunksize=1)
+		results = executor.map(password_check_with_target_hash, guesses_generator, chunksize=100)
 
 		# Iterate over results as they are completed
 		for result in results:

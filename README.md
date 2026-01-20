@@ -3,11 +3,11 @@ Brute Force Password Cracker written in Python.
 
 ## USAGE  
 1. Clone this repo.  
-2. In the project root directory:  
-    1. Run `python -m venv venv` to create a Python virtual environment.  
-    2. Run `pip install -r requirements.txt` to install project dependency packages.  
-    3. Run `python gen_argon2_passwd_file.py` and follow prompts or press ENTER for defaults to generate a sample password test file.  
-    4. Run `python main.py` and follow prompts or press ENTER for defaults to find your user's password.  
+2. In the project root directory, run:  
+    1. `python -m venv venv` to create a Python virtual environment.  
+    2. `pip install -r requirements.txt` to install project dependency packages.  
+    3. `python gen_argon2_passwd_file.py` and follow prompts or press ENTER for defaults to generate a sample password test file.  
+    4. `python main.py` and follow prompts or press ENTER for defaults to find your user's password.  
 
 ## SAMPLE TEST RESULTS  
 ### Password Length 1  

@@ -134,4 +134,4 @@ if __name__ == '__main__':
 
 	if password_found == None: exit('Password not found')
 
-	print(f'Password found: {password_found}\nTime taken: {time_taken} seconds')
+	print(f'\n\n---------\nPassword found: {password_found}\nTime taken: {time_taken} seconds\n---------\n\n')

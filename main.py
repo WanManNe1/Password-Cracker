@@ -90,7 +90,7 @@ def main() -> tuple[str, str] | None:
 	max_length = input('Enter the MAXIMUM POSSIBLE PASSWORD LENGTH: ').strip()
 	if not max_length or not max_length.isdigit(): max_length = MAX_PASSWD_LENGTH
 
-	# Create the generator to produce the tasks
+	# Create the generator to produce the guesses
 	guesses_generator = generate_guesses(min_length=int(min_length), max_length=int(max_length))
 
 	# Bake in the `target_hash` argument into `check_password` function using `functools.partial`

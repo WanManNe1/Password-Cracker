@@ -64,18 +64,18 @@ def check_password(guess: str, target_hash: str) -> str | None:
 	"""
 
 	try:
-		if ph.verify(hash=target_hash, password=guess):
-			return guess
+		print(f'Checking: {guess}', end='\r')
+		if ph.verify(hash=target_hash, password=guess): return guess
 	except Exception: pass
 
 	return None
 
 
 
-def main() -> tuple[str, str] | None:
+def main() -> tuple[str | None, str]:
 	"""
 		Set up and run parallel password search.
-		Returns (correct password, time taken to find) or None if password is not found.
+		Returns (correct password | None, time taken in seconds).
 	"""
 
 	uname = input('Enter the USERNAME to crack (e.g., user-01): ').strip()
@@ -119,13 +119,19 @@ def main() -> tuple[str, str] | None:
 				password_found = result
 				executor.shutdown(wait=False, cancel_futures=True)		# Stop the search once correct password is found
 				break
+
+		executor.shutdown(wait=False, cancel_futures=True)		# Stop the search once correct password is found
 	
 	end_time = time.time()
 
 	if password_found: return password_found, f'{end_time - start_time:.4f}'
-	return None
+	return None, f'{end_time - start_time:.4f}'
 
 
 
 if __name__ == '__main__':
-	print(main())
+	password_found, time_taken = main()
+
+	if password_found == None: exit('Password not found')
+
+	print(f'Password found: {password_found}\nTime taken: {time_taken} seconds')

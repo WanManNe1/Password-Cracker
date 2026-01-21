@@ -7,7 +7,7 @@ from argon2 import PasswordHasher
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from itertools import product
-from typing import Optional
+from typing import Optional, Generator
 
 
 DEFAULT_UNAME = 'user-01'
@@ -45,7 +45,7 @@ def get_target_hash(uname: str, passwd_file_path: str = PASSWD_FILE_NAME, encodi
 
 
 
-def generate_guesses(alphabet: str = PERMITTED_ALPHABET, min_length: int = MIN_PASSWD_LENGTH, max_length: int = MAX_PASSWD_LENGTH):
+def generate_guesses(alphabet: str = PERMITTED_ALPHABET, min_length: int = MIN_PASSWD_LENGTH, max_length: int = MAX_PASSWD_LENGTH) -> Generator[str]:
 	"""
 		A generator that yields all possible guesses from min_length upto max_length.
 		This is memory efficient as it doesn't create a massive list.
@@ -72,7 +72,7 @@ def check_password(guess: str, target_hash: str) -> str | None:
 
 
 
-def main() -> tuple[str | None, str]:
+def main():
 	"""
 		Set up and run parallel password search.
 		Returns (correct password | None, time taken in seconds).
@@ -99,6 +99,7 @@ def main() -> tuple[str | None, str]:
 
 	# Determine number of workers to use
 	num_workers = multiprocessing.cpu_count()
+	print(f'Using {num_workers} parallel workers for password cracking...\n')
 	
 	password_found = None
 	start_time = time.time()
@@ -111,27 +112,24 @@ def main() -> tuple[str | None, str]:
 		# `chunksize` is a performance tuning to send multiple guesses to a worker at once
 		# reducing inter-process communication overhead 
 
-		results = executor.map(password_check_with_target_hash, guesses_generator, chunksize=100)
+		results = executor.map(password_check_with_target_hash, guesses_generator, chunksize=10)
 
 		# Iterate over results as they are completed
 		for result in results:
-			if result:
-				password_found = result
-				executor.shutdown(wait=False, cancel_futures=True)		# Stop the search once correct password is found
-				break
+			if not result: continue
+			password_found = result
+			executor.shutdown(wait=False, cancel_futures=True)		# Stop the search once correct password is found
+			break
 
 		executor.shutdown(wait=False, cancel_futures=True)		# Stop the search once correct password is found
 	
 	end_time = time.time()
 
-	if password_found: return password_found, f'{end_time - start_time:.4f}'
-	return None, f'{end_time - start_time:.4f}'
+	if not password_found: exit('Password not found')
+
+	print(f'\n\n---------\nPassword found: {password_found}\nTime taken: {end_time - start_time:.4f} seconds\n---------\n\n')
 
 
 
 if __name__ == '__main__':
-	password_found, time_taken = main()
-
-	if password_found == None: exit('Password not found')
-
-	print(f'\n\n---------\nPassword found: {password_found}\nTime taken: {time_taken} seconds\n---------\n\n')
+	main()

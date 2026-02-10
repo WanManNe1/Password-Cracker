@@ -1,3 +1,4 @@
+import argparse
 import csv
 import multiprocessing
 import string
@@ -78,20 +79,18 @@ def main():
 		Returns (correct password | None, time taken in seconds).
 	"""
 
-	uname = input('Enter the USERNAME to crack (e.g., user-01): ').strip()
-	if not uname: uname = DEFAULT_UNAME
+	parser = argparse.ArgumentParser(description='Brute force password cracker.')
+	parser.add_argument('-u', '--uname', type=str, default=DEFAULT_UNAME, help='Username whose password is to be cracked.')
+	parser.add_argument('-mn', '--min_length', type=int, default=MIN_PASSWD_LENGTH, help='Minimum password length.')
+	parser.add_argument('-mx', '--max_length', type=int, default=MAX_PASSWD_LENGTH, help='Maximum password length.')
 
-	target_hash = get_target_hash(uname=uname)
-	if not target_hash: exit('No hash matching username, or invalid username')
+	args = parser.parse_args()
 
-	min_length = input('Enter the MINIMUM POSSIBLE PASSWORD LENGTH: ').strip()
-	if not min_length or not min_length.isdigit(): min_length = MIN_PASSWD_LENGTH
-
-	max_length = input('Enter the MAXIMUM POSSIBLE PASSWORD LENGTH: ').strip()
-	if not max_length or not max_length.isdigit(): max_length = MAX_PASSWD_LENGTH
+	target_hash = get_target_hash(uname=args.uname)
+	if not target_hash: exit('No hash matching given username, or invalid username.')
 
 	# Create the generator to produce the guesses
-	guesses_generator = generate_guesses(min_length=int(min_length), max_length=int(max_length))
+	guesses_generator = generate_guesses(min_length=args.min_length, max_length=args.max_length)
 
 	# Bake in the `target_hash` argument into `check_password` function using `functools.partial`
 	# (since `check_password` takes two args but `executor.map` only sends one)

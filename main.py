@@ -1,6 +1,8 @@
 import argparse
 import csv
+import picologgi logging
 import multiprocessing
+import queue
 import string
 import time
 
@@ -8,10 +10,12 @@ from argon2 import PasswordHasher
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from itertools import product
+from logging.handlers import QueueHandler, QueueListener
 from typing import Optional, Generator
 
 
 DEFAULT_UNAME = 'user-01'
+LOG_FILE_NAME = 'crack.log'
 MAX_PASSWD_LENGTH = 5
 MIN_PASSWD_LENGTH = 5
 PASSWD_FILE_NAME = 'passwd.csv'
@@ -26,6 +30,11 @@ ph = PasswordHasher(
 	hash_len = 32,          # Length of resulting hash
 	salt_len = 16           # Length of random salt
 )
+
+log_queue = queue.Queue(0)
+handler = logging.FileHandler(filename=LOG_FILE_NAME)
+queue_handler = QueueHandler(queue=log_queue)
+listener = QueueListener(queue=log_queue, [])
 
 
 def get_target_hash(uname: str, passwd_file_path: str = PASSWD_FILE_NAME, encoding: str = 'utf-8', uname_col: int = 0, hash_col: int = 2) -> Optional[str]:
@@ -99,9 +108,12 @@ def main():
 	# Determine number of workers to use
 	num_workers = multiprocessing.cpu_count()
 	print(f'Using {num_workers} parallel workers for password cracking...\n')
+	print(f'Starting search for password of user "{args.uname}" with length between {args.min_length} and {args.max_length}...\n')
 	
 	password_found = None
 	start_time = time.time()
+
+	print(f'Start time: {start_time:.4f}...\n')
 
 	# Use `ProcessPoolExecutor` to manage a pool of worker processes
 	with ProcessPoolExecutor(max_workers=num_workers) as executor:
@@ -125,6 +137,8 @@ def main():
 	end_time = time.time()
 
 	if not password_found: exit('Password not found')
+
+	print(f'End time: {end_time:.4f}...\n')
 
 	print(f'\n\n---------\nPassword found: {password_found}\nTime taken: {end_time - start_time:.4f} seconds\n---------\n\n')
 

@@ -81,8 +81,8 @@ def main():
 
 	parser = argparse.ArgumentParser(description='Brute force password cracker.')
 	parser.add_argument('-u', '--uname', type=str, default=DEFAULT_UNAME, help='Username whose password is to be cracked.')
-	parser.add_argument('-mn', '--min_length', type=int, default=MIN_PASSWD_LENGTH, help='Minimum password length.')
-	parser.add_argument('-mx', '--max_length', type=int, default=MAX_PASSWD_LENGTH, help='Maximum password length.')
+	parser.add_argument('-n', '--min_length', type=int, default=MIN_PASSWD_LENGTH, help='Minimum password length.')
+	parser.add_argument('-x', '--max_length', type=int, default=MAX_PASSWD_LENGTH, help='Maximum password length.')
 
 	args = parser.parse_args()
 
